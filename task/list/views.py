@@ -16,7 +16,7 @@ def handleData(request):
         app = Task.objects.all()
         serializer = TaskSerializer(app, many=True)
         print(serializer.data[0]['id'])
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'tasks':serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         if 'tasks' in request.data:
@@ -43,7 +43,7 @@ def handleData(request):
         tasks_deleted = Task.objects.filter(id__in=ids).delete()
 
         if tasks_deleted[0] > 0:
-            return Response(f'Deleted {tasks_deleted[0]} tasks successfully', status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response('No tasks were deleted')
 
@@ -61,24 +61,24 @@ def GetDeleteById(request,pk):
     
     elif request.method=='DELETE':
         task.delete()
-        return Response('Task deleted succesfully',HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
     elif request.method=='PUT':
         data=JSONParser().parse(request)
         taskSerialzer=TaskSerializer(task,data)
         if taskSerialzer.is_valid():
             taskSerialzer.save()
-            return Response(taskSerialzer.data,HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response('Error occured')
+            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
     
     elif request.method=='PATCH':
         data=JSONParser().parse(request)
         taskSerialzer=TaskSerializer(task,data,partial=True)
         if taskSerialzer.is_valid():
             taskSerialzer.save()
-            return Response(taskSerialzer.data)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response(HTTP_404_NOT_FOUND)
+            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
     else:
         pass
