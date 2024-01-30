@@ -95,4 +95,4 @@ def GetDeleteById(request,pk):
         else:
             return Response("Please follow the given model for data",status=status.HTTP_406_NOT_ACCEPTABLE)
     else:
-        pass
+        return Response('No such method allowed',status=status.HTTP_405_METHOD_NOT_ALLOWED)
