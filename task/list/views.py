@@ -27,6 +27,8 @@ def handleData(request):
                 if serializer.is_valid():
                     serializer.save()
                     ids.append({"id": serializer.data['id']})
+                else:
+                    return Response("Please follow the given structure for creating the notes",status=status.HTTP_406_NOT_ACCEPTABLE)
             return Response({"tasks": ids}, status=status.HTTP_201_CREATED)
         else:
             serializer = TaskSerializer(data=request.data)
@@ -45,40 +47,52 @@ def handleData(request):
         if tasks_deleted[0] > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response('No tasks were deleted')
+            return Response('No tasks with the given id are found',status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 @api_view(['GET','DELETE','PUT','PATCH'])
 def GetDeleteById(request,pk):
-    try:
-        task=Task.objects.get(pk=pk)
-    except:
-        return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
     
     if request.method=='GET':
+        try:
+            task=Task.objects.get(pk=pk)
+        except:
+            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
         data=TaskSerializer(task)
         return Response(data.data, status=status.HTTP_200_OK)
     
     elif request.method=='DELETE':
+        try:
+            task=Task.objects.get(pk=pk)
+        except:
+            return Response(status=status.HTTP_204_NO_CONTENT)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     elif request.method=='PUT':
+        try:
+            task=Task.objects.get(pk=pk)
+        except:
+            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
         data=JSONParser().parse(request)
         taskSerialzer=TaskSerializer(task,data)
         if taskSerialzer.is_valid():
             taskSerialzer.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
+            return Response("Please follow the given model for data",status=status.HTTP_406_NOT_ACCEPTABLE)
     
     elif request.method=='PATCH':
+        try:
+            task=Task.objects.get(pk=pk)
+        except:
+            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
         data=JSONParser().parse(request)
         taskSerialzer=TaskSerializer(task,data,partial=True)
         if taskSerialzer.is_valid():
             taskSerialzer.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response("There is no task at that id",status=status.HTTP_404_NOT_FOUND)
+            return Response("Please follow the given model for data",status=status.HTTP_406_NOT_ACCEPTABLE)
     else:
         pass
